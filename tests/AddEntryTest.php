@@ -16,15 +16,12 @@ class AddEntryTest extends PHPUnit_Framework_TestCase {
      * @expectedException exception
      */
     public function testException() {
-        
-        
-        //Test for raising an expected exception
-        $this->setExpectedException( $this->klade->addEntry(''));
-        
+
+        $this->setExpectedException($this->klade->addEntry(''));
     }
 
     public function testAddEntry() {
-        
+
         $this->assertTrue($this->klade->addEntry('an event happened right now!'));
     }
 
