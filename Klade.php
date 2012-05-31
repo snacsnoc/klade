@@ -3,6 +3,7 @@
 /**
  * Klade 
  * 
+ * @link      https://github.com/snacsnoc/klade
  * @author    Easton Elliott <easton@geekness.eu> 
  * @license   MIT
  * @version   0.2
@@ -16,30 +17,18 @@ class Klade {
     public $filename;
 
     /**
-     * The file handle
-     * @var resource 
-     */
-    private $logFileHandle;
-
-    /**
-     * Close the file handle 
-     */
-    public function __destruct() {
-        fclose($this->logFileHandle);
-    }
-
-    /**
      * Set the log file
      * @param string $filename Log filename
      * @access public
      * 
      */
     public function setLog($filename) {
-        //Create a handle for the file
-        $this->logFileHandle = fopen($filename, 'a+b');
+        //Open a handle for the file
+        $file_handle = fopen($filename, 'a+');
+
         //If the file doesn't exist, attempt to create it
         if (file_exists($filename) == false) {
-            if ($this->logFileHandle) {
+            if ($file_handle) {
                 $this->filename = $filename;
             } else {
                 throw new exception("Cannot create file $filename");
@@ -50,6 +39,7 @@ class Klade {
         } else {
             throw new exception("Cannot write to $filename");
         }
+        fclose($file_handle);
     }
 
     /**
@@ -59,13 +49,17 @@ class Klade {
      * @return boolean
      */
     public function addEntry($log_message) {
+        //Open a handle for the file
+        $file_handle = fopen($this->filename, 'a+');
+
         //Check if the message is empty, if so return false
         if (!isset($log_message) || trim($log_message) !== '') {
             //Prepend the date to the log message and add a line break
             $log_message = "[" . date('M d H:i:s') . "] " . $log_message . "\n";
-            if (fwrite($this->logFileHandle, $log_message) === false) {
+            if (fwrite($file_handle, $log_message) == false) {
                 throw new exception("Cannot write to file $this->filename");
             } else {
+                fclose($file_handle);
                 return true;
             }
         } else {
@@ -101,12 +95,14 @@ class Klade {
      * Truncate the log file
      * @return boolean
      * @throws exception 
+     * 
      */
     public function truncateLog() {
-
-        if (ftruncate($this->logFileHandle, 0) == false) {
+        $file_handle = fopen($this->filename, 'a+');
+        if (ftruncate($file_handle, 0) == false) {
             throw new exception("Cannot truncate file $this->filename");
         } else {
+            fclose($file_handle);
             return true;
         }
     }
