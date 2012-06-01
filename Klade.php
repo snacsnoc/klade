@@ -6,13 +6,13 @@
  * @link      https://github.com/snacsnoc/klade
  * @author    Easton Elliott <easton@geekness.eu> 
  * @license   MIT
- * @version   0.2
+ * @version   0.2.1
  */
 class Klade {
 
     /**
      * The log filename
-     * @var string 
+     * @var string
      */
     public $filename;
 
@@ -26,19 +26,12 @@ class Klade {
         //Open a handle for the file
         $file_handle = fopen($filename, 'a+');
 
-        //If the file doesn't exist, attempt to create it
-        if (file_exists($filename) == false) {
-            if ($file_handle) {
-                $this->filename = $filename;
-            } else {
-                throw new exception("Cannot create file $filename");
-            }
-            //If the file exists, check if it's writable   
-        } else if (is_writable($filename)) {
+        if ($file_handle) {
             $this->filename = $filename;
         } else {
-            throw new exception("Cannot write to $filename");
+            throw new exception("Cannot open file $filename");
         }
+
         fclose($file_handle);
     }
 
@@ -49,13 +42,14 @@ class Klade {
      * @return boolean
      */
     public function addEntry($log_message) {
-        //Open a handle for the file
-        $file_handle = fopen($this->filename, 'a+');
-
         //Check if the message is empty, if so return false
         if (!isset($log_message) || trim($log_message) !== '') {
+            //Open a handle for the file
+            $file_handle = fopen($this->filename, 'a');
+
             //Prepend the date to the log message and add a line break
-            $log_message = "[" . date('M d H:i:s') . "] " . $log_message . "\n";
+            $log_message = "[" . date('Y-m-d H:i:s') . "] " . trim($log_message) . "\n";
+
             if (fwrite($file_handle, $log_message) == false) {
                 throw new exception("Cannot write to file $this->filename");
             } else {
